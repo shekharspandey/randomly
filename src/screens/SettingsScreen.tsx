@@ -11,6 +11,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 
 const OPTIONS = [
   { id: "privacy", label: "Privacy Policy" },
@@ -24,9 +25,16 @@ export function SettingsScreen() {
   const { user, logout } = useAuth();
 
   const [editOpen, setEditOpen] = useState(false);
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
   const [name, setName] = useState("Natalie Morris");
   const [email, setEmail] = useState("natalie@email.com");
   const [avatarSeed, setAvatarSeed] = useState("natalie");
+
+  const handleLogout = async () => {
+    setLogoutDialogOpen(false);
+    await logout();
+    router.replace("/login");
+  };
 
   return (
     <>
@@ -82,13 +90,12 @@ export function SettingsScreen() {
         )}
         ListFooterComponent={
           <View className="bg-black px-4 mt-6">
-            <Pressable className="py-4 items-center">
-              <Text className="text-red-500 font-semibold" onPress={async () => {
-                await logout();
-                router.replace("/login");
-              }}>
-                Logout
-              </Text>
+            <Pressable
+              className="py-4 items-center flex-row justify-center gap-2"
+              onPress={() => setLogoutDialogOpen(true)}
+            >
+              <Ionicons name="log-out-outline" size={18} color="#ef4444" />
+              <Text className="text-red-500 font-semibold">Logout</Text>
             </Pressable>
           </View>
         }
@@ -138,6 +145,19 @@ export function SettingsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* LOGOUT CONFIRM DIALOG */}
+      <ConfirmDialog
+        visible={logoutDialogOpen}
+        title="Logout"
+        message="Are you sure you want to logout? You'll need to sign in again to access your account."
+        confirmLabel="Yes, Logout"
+        cancelLabel="Stay"
+        danger
+        icon="log-out-outline"
+        onConfirm={handleLogout}
+        onCancel={() => setLogoutDialogOpen(false)}
+      />
     </>
   );
 }
